@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeadManager Pro - Smart CRM System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1a1a2e;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 50px;
+            padding: 0 15px;
+            animation: slideIn 0.5s ease;
+        }
+
+        .logo i {
+            font-size: 32px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            margin: 8px 0;
+            color: #666;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #f0f0ff;
+            color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 12px;
+            margin-top: 20px;
+            animation: slideUp 0.5s ease;
+        }
+
+        .admin-info i {
+            font-size: 24px;
+            color: #667eea;
+        }
+
+        .admin-info p {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .admin-info small {
+            font-size: 11px;
+            color: #999;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            animation: slideDown 0.5s ease;
+        }
+
+        .top-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-add-lead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add-lead:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon i {
+            font-size: 30px;
+            color: #667eea;
+        }
+
+        .stat-info h3 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a1a2e;
+        }
+
+        .stat-info p {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Leads Table */
+        .leads-table-container {
+            background: white;
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .leads-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .leads-table th {
+            background: #f8f9ff;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .leads-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-new {
+            background: #ffeaa7;
+            color: #f39c12;
+        }
+
+        .status-contacted {
+            background: #b2f0e6;
+            color: #00b894;
+        }
+
+        .status-converted {
+            background: #c8e6c9;
+            color: #27ae60;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+
+        .edit-btn {
+            color: #667eea;
+        }
+
+        .note-btn {
+            color: #f39c12;
+        }
+
+        .delete-btn {
+            color: #e74c3c;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+            background: rgba(0,0,0,0.05);
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filters select, .filters input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .filters input {
+            flex: 1;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 0;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            animation: slideDown 0.3s;
+        }
+
+        .modal-lg {
+            max-width: 600px;
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close, .close-notes {
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+
+        .close:hover, .close-notes:hover {
+            color: #333;
+        }
+
+        .form-group {
+            padding: 15px 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-submit {
+            margin: 15px 25px 25px;
+            width: calc(100% - 50px);
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Notes List */
+        #notes-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .note-item {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            animation: fadeIn 0.3s;
+        }
+
+        .note-text {
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .note-date {
+            font-size: 11px;
+            color: #999;
+        }
+
+        /* Analytics */
+        .analytics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 20px;
+            color: #1a1a2e;
+        }
+
+        /* Recent Leads */
+        .recent-leads {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .recent-leads h2 {
+            margin-bottom: 20px;
+            color: #1a1a2e;
+        }
+
+        .leads-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 2000;
+            animation: slideUp 0.3s;
+            border-left: 4px solid #27ae60;
+        }
+
+        .toast.error {
+            border-left-color: #e74c3c;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80px;
+                padding: 20px 10px;
+            }
+            
+            .sidebar span, .admin-info div {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 80px;
+                padding: 15px;
+            }
+            
+            .logo span {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .analytics-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .top-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-chart-line"></i>
+                <span>LeadManager Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active" data-tab="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-tab="leads">
+                    <i class="fas fa-users"></i>
+                    <span>All Leads</span>
+                </div>
+                <div class="nav-item" data-tab="analytics">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Analytics</span>
+                </div>
+            </nav>
+            <div class="admin-info">
+                <i class="fas fa-user-shield"></i>
+                <div>
+                    <p>Admin Access</p>
+                    <small>Secure Session</small>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <h1 id="page-title">Dashboard</h1>
+                <button class="btn-add-lead" id="openAddLeadModal">
+                    <i class="fas fa-plus"></i>
+                    Add New Lead
+                </button>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div id="dashboard-content" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-leads">0</h3>
+                            <p>Total Leads</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="new-leads">0</h3>
+                            <p>New Leads</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="contacted-leads">0</h3>
+                            <p>Contacted</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="converted-leads">0</h3>
+                            <p>Converted</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="recent-leads">
+                    <h2>Recent Leads</h2>
+                    <div id="recent-leads-list" class="leads-grid"></div>
+                </div>
+            </div>
+
+            <!-- Leads List Content -->
+            <div id="leads-content" class="content-section">
+                <div class="filters">
+                    <select id="status-filter">
+                        <option value="all">All Status</option>
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="converted">Converted</option>
+                    </select>
+                    <input type="text" id="search-leads" placeholder="🔍 Search by name or email...">
+                </div>
+                <div id="leads-list" class="leads-table-container">
+                    <table class="leads-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Source</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leads-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics Content -->
+            <div id="analytics-content" class="content-section">
+                <div class="analytics-container">
+                    <div class="chart-card">
+                        <h3>Lead Status Distribution</h3>
+                        <canvas id="status-chart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Leads by Source</h3>
+                        <canvas id="source-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Lead Modal -->
+    <div id="addLeadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Add New Lead</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="addLeadForm">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="lead-name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" id="lead-email" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Source *</label>
+                    <select id="lead-source" required>
+                        <option value="">Select source</option>
+                        <option value="Website Form">🌐 Website Form</option>
+                        <option value="Landing Page">📄 Landing Page</option>
+                        <option value="Social Media">📱 Social Media</option>
+                        <option value="Referral">🤝 Referral</option>
+                        <option value="Email Campaign">📧 Email Campaign</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save"></i> Save Lead
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notes Modal -->
+    <div id="notesModal" class="modal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2><i class="fas fa-sticky-note"></i> Lead Notes & Follow-ups</h2>
+                <span class="close-notes">&times;</span>
+            </div>
+            <div id="notes-content">
+                <div id="notes-list"></div>
+                <form id="addNoteForm">
+                    <textarea id="note-text" placeholder="📝 Add a follow-up note..." rows="3"></textarea>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-plus"></i> Add Note
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Local Storage Keys
+        const STORAGE_KEY = 'crm_leads';
+        
+        // Sample initial data
+        const sampleLeads = [
+            {
+                id: '1',
+                name: 'John Smith',
+                email: 'john.smith@example.com',
+                source: 'Website Form',
+                status: 'new',
+                notes: [
+                    { text: 'Interested in premium plan', date: new Date('2024-01-15') },
+                    { text: 'Sent follow-up email', date: new Date('2024-01-16') }
+                ],
+                createdAt: new Date('2024-01-15')
+            },
+            {
+                id: '2',
+                name: 'Sarah Johnson',
+                email: 'sarah.j@example.com',
+                source: 'Social Media',
+                status: 'contacted',
+                notes: [
+                    { text: 'Had a great conversation about features', date: new Date('2024-01-20') }
+                ],
+                createdAt: new Date('2024-01-18')
+            },
+            {
+                id: '3',
+                name: 'Michael Brown',
+                email: 'michael.b@example.com',
+                source: 'Referral',
+                status: 'converted',
+                notes: [
+                    { text: 'Signed up for annual plan', date: new Date('2024-01-22') },
+                    { text: 'Sent welcome package', date: new Date('2024-01-23') }
+                ],
+                createdAt: new Date('2024-01-10')
+            },
+            {
+                id: '4',
+                name: 'Emily Davis',
+                email: 'emily.d@example.com',
+                source: 'Email Campaign',
+                status: 'new',
+                notes: [],
+                createdAt: new Date('2024-01-25')
+            },
+            {
+                id: '5',
+                name: 'David Wilson',
+                email: 'david.w@example.com',
+                source: 'Landing Page',
+                status: 'contacted',
+                notes: [
+                    { text: 'Requested product demo', date: new Date('2024-01-24') }
+                ],
+                createdAt: new Date('2024-01-23')
+            }
+        ];
+
+        // Initialize leads from localStorage or use sample data
+        let leads = [];
+        let currentLeadId = null;
+        let statusChart = null;
+        let sourceChart = null;
+
+        function loadLeads() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                leads = JSON.parse(stored);
+                // Convert date strings back to Date objects
+                leads.forEach(lead => {
+                    lead.createdAt = new Date(lead.createdAt);
+                    if (lead.notes) {
+                        lead.notes.forEach(note => {
+                            note.date = new Date(note.date);
+                        });
+                    }
+                });
+            } else {
+                leads = sampleLeads;
+                saveLeads();
+            }
+        }
+
+        function saveLeads() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(leads));
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.innerHTML = `
+                <i class="fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'}" style="color: ${isError ? '#e74c3c' : '#27ae60'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Render dashboard
+        async function renderDashboard() {
+            const total = leads.length;
+            const newLeads = leads.filter(l => l.status === 'new').length;
+            const contacted = leads.filter(l => l.status === 'contacted').length;
+            const converted = leads.filter(l => l.status === 'converted').length;
+            
+            document.getElementById('total-leads').textContent = total;
+            document.getElementById('new-leads').textContent = newLeads;
+            document.getElementById('contacted-leads').textContent = contacted;
+            document.getElementById('converted-leads').textContent = converted;
+            
+            // Show recent 5 leads
+            const recentLeads = [...leads].sort((a, b) => b.createdAt - a.createdAt).slice(0, 5);
+            const container = document.getElementById('recent-leads-list');
+            
+            if (recentLeads.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No leads yet. Add your first lead!</p></div>';
+            } else {
+                container.innerHTML = recentLeads.map(lead => `
+                    <div class="stat-card" style="padding: 15px; justify-content: space-between;">
+                        <div>
+                            <strong>${escapeHtml(lead.name)}</strong><br>
+                            <small style="color: #666;">${escapeHtml(lead.email)}</small>
+                        </div>
+                        <span class="status-badge status-${lead.status}">${lead.status.toUpperCase()}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Render leads table
+        async function renderLeadsTable() {
+            let filteredLeads = [...leads];
+            const filter = document.getElementById('status-filter').value;
+            const search = document.getElementById('search-leads').value.toLowerCase();
+            
+            if (filter !== 'all') {
+                filteredLeads = filteredLeads.filter(l => l.status === filter);
+            }
+            if (search) {
+                filteredLeads = filteredLeads.filter(l => 
+                    l.name.toLowerCase().includes(search) || 
+                    l.email.toLowerCase().includes(search)
+                );
+            }
+            
+            const tbody = document.getElementById('leads-table-body');
+            
+            if (filteredLeads.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fas fa-search"></i><p>No leads found</p></div></td></tr>';
+            } else {
+                tbody.innerHTML = filteredLeads.map(lead => `
+                    <tr>
+                        <td><strong>${escapeHtml(lead.name)}</strong></td>
+                        <td>${escapeHtml(lead.email)}</td>
+                        <td>${escapeHtml(lead.source)}</td>
+                        <td>
+                            <select class="status-badge status-${lead.status}" 
+                                    onchange="updateStatus('${lead.id}', this.value)"
+                                    style="padding: 5px 10px; border-radius: 20px; border: none; cursor: pointer;">
+                                <option value="new" ${lead.status === 'new' ? 'selected' : ''}>🟡 New</option>
+                                <option value="contacted" ${lead.status === 'contacted' ? 'selected' : ''}>🔵 Contacted</option>
+                                <option value="converted" ${lead.status === 'converted' ? 'selected' : ''}>🟢 Converted</option>
+                            </select>
+                        </td>
+                        <td>${new Date(lead.createdAt).toLocaleDateString()}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn note-btn" onclick="openNotes('${lead.id}')" title="Notes">
+                                    <i class="fas fa-sticky-note"></i>
+                                </button>
+                                <button class="action-btn delete-btn" onclick="deleteLead('${lead.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Update lead status
+        window.updateStatus = function(id, status) {
+            const lead = leads.find(l => l.id === id);
+            if (lead) {
+                lead.status = status;
+                saveLeads();
+                renderLeadsTable();
+                renderDashboard();
+                renderAnalytics();
+                showToast(`Status updated to ${status}`);
+            }
+        }
+
+        // Add new lead
+        document.getElementById('addLeadForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('lead-name').value;
+            const email = document.getElementById('lead-email').value;
+            const source = document.getElementById('lead-source').value;
+            
+            // Check for duplicate email
+            if (leads.some(lead => lead.email === email)) {
+                showToast('Email already exists!', true);
+                return;
+            }
+            
+            const newLead = {
+                id: Date.now().toString(),
+                name,
+                email,
+                source,
+                status: 'new',
+                notes: [],
+                createdAt: new Date()
+            };
+            
+            leads.unshift(newLead);
+            saveLeads();
+            renderLeadsTable();
+            renderDashboard();
+            renderAnalytics();
+            closeModal();
+            document.getElementById('addLeadForm').reset();
+            showToast('Lead added successfully!');
+        });
+
+        // Open notes modal
+        window.openNotes = function(id) {
+            currentLeadId = id;
+            const lead = leads.find(l => l.id === id);
+            
+            const notesList = document.getElementById('notes-list');
+            if (lead.notes && lead.notes.length > 0) {
+                notesList.innerHTML = lead.notes.map(note => `
+                    <div class="note-item">
+                        <div class="note-text">💬 ${escapeHtml(note.text)}</div>
+                        <div class="note-date">${new Date(note.date).toLocaleString()}</div>
+                    </div>
+                `).join('');
+            } else {
+                notesList.innerHTML = '<div class="empty-state"><i class="fas fa-comment-dots"></i><p>No notes yet. Add your first note!</p></div>';
+            }
+            
+            document.getElementById('notesModal').style.display = 'block';
+        }
+
+        // Add note
+        document.getElementById('addNoteForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = document.getElementById('note-text').value;
+            
+            if (!text) {
+                showToast('Please enter a note', true);
+                return;
+            }
+            
+            const lead = leads.find(l => l.id === currentLeadId);
+            if (lead) {
+                if (!lead.notes) lead.notes = [];
+                lead.notes.push({
+                    text: text,
+                    date: new Date()
+                });
+                saveLeads();
+                document.getElementById('note-text').value = '';
+                openNotes(currentLeadId);
+                renderLeadsTable();
+                showToast('Note added successfully!');
+            }
+        });
+
+        // Delete lead
+        window.deleteLead = function(id) {
+            if (confirm('Are you sure you want to delete this lead?')) {
+                leads = leads.filter(l => l.id !== id);
+                saveLeads();
+                renderLeadsTable();
+                renderDashboard();
+                renderAnalytics();
+                showToast('Lead deleted successfully');
+            }
+        }
+
+        // Render analytics
+        async function renderAnalytics() {
+            // Status distribution
+            const statusCounts = {
+                new: leads.filter(l => l.status === 'new').length,
+                contacted: leads.filter(l => l.status === 'contacted').length,
+                converted: leads.filter(l => l.status === 'converted').length
+            };
+            
+            // Source distribution
+            const sourceMap = {};
+            leads.forEach(lead => {
+                sourceMap[lead.source] = (sourceMap[lead.source] || 0) + 1;
+            });
+            
+            if (statusChart) statusChart.destroy();
+            if (sourceChart) sourceChart.destroy();
+            
+            const ctx1 = document.getElementById('status-chart').getContext('2d');
+            statusChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['New', 'Contacted', 'Converted'],
+                    datasets: [{
+                        data: [statusCounts.new, statusCounts.contacted, statusCounts.converted],
+                        backgroundColor: ['#f39c12', '#00b894', '#27ae60'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            const ctx2 = document.getElementById('source-chart').getContext('2d');
+            sourceChart = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(sourceMap),
+                    datasets: [{
+                        label: 'Number of Leads',
+                        data: Object.values(sourceMap),
+                        backgroundColor: '#667eea',
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const tab = item.dataset.tab;
+                
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+                document.getElementById(`${tab}-content`).classList.add('active');
+                
+                const titles = { dashboard: 'Dashboard', leads: 'All Leads', analytics: 'Analytics' };
+                document.getElementById('page-title').textContent = titles[tab];
+                
+                if (tab === 'dashboard') renderDashboard();
+                if (tab === 'leads') renderLeadsTable();
+                if (tab === 'analytics') renderAnalytics();
+            });
+        });
+
+        // Modal handling
+        const modal = document.getElementById('addLeadModal');
+        const notesModal = document.getElementById('notesModal');
+        const openModalBtn = document.getElementById('openAddLeadModal');
+        const closeBtn = document.querySelector('.close');
+        const closeNotesBtn = document.querySelector('.close-notes');
+
+        openModalBtn.onclick = () => modal.style.display = 'block';
+        closeBtn.onclick = () => closeModal();
+        closeNotesBtn.onclick = () => notesModal.style.display = 'none';
+
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = (e) => {
+            if (e.target === modal) closeModal();
+            if (e.target === notesModal) notesModal.style.display = 'none';
+        };
+
+        // Filter and search
+        document.getElementById('status-filter').addEventListener('change', () => renderLeadsTable());
+        document.getElementById('search-leads').addEventListener('input', () => renderLeadsTable());
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // Initialize
+        loadLeads();
+        renderDashboard();
+        renderAnalytics();
+    </script>
+</body>
+</html>
